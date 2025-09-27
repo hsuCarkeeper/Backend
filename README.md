@@ -33,3 +33,8 @@
 | 🎨     | `style`    | 코드 스타일 변경 (세미콜론, 들여쓰기 등) – 기능 변화 없음 |
 | 💡     | `comment`  | 주석 수정, 추가                                           |
 | 🔀     | `merge`    | 브랜치 병합                                               |
+
+### 기술 스택
+Java : JDK 17
+Spring Boot : 3.X
+DBMS : MySQL 
