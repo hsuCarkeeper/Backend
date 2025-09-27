@@ -35,6 +35,7 @@
 | 🔀     | `merge`    | 브랜치 병합                                               |
 
 ### 기술 스택
-Java : JDK 17
-Spring Boot : 3.X
-DBMS : MySQL 
+Java : JDK 17 \n
+Spring Boot : 3.X\n
+DBMS : MySQL \n
+IDE : IntelliJ
