@@ -1,0 +1,153 @@
+# src/main/resources/application.yml
+spring:
+  application:
+    name: car-keeper
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+    hikari: # ?????? ?? ??? ? ?? ??
+      maximum-pool-size: 10 # ??? ??? ? ?? ?? ??? ?
+      minimum-idle: 5 # ?? ???(=idle) ?? ??? ? ??? ?
+      idle-timeout: 600000       # 10m, ?? ?? ???? ? ?? ???? ??? ??(??). ? minimum-idle ??? ???
+      max-lifetime: 1800000      # 30m ???? ??? ? ?? ??. ? ??? ??? ??? ??? ??
+
+  jpa:
+    open-in-view: false
+    show-sql: true               # ????? ??? (?? ????? ??)
+    hibernate:
+      ddl-auto: update           # ??? validate ??
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: Asia/Seoul
+        # Hibernate 6.x? dialect ?? ?? ????? ??? ??
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  jackson:
+    time-zone: Asia/Seoul
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB        # ?? ?? ?? ???
+      max-request-size: 20MB
+
+  web:
+    cors:   # ??: credentials? true? ?? origin? "*"? ? ? ??. ???? ??? ???? ???? ?.
+      allowed-origins: "http://localhost:3000"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          hyundai:               # ?? OAuth2 ?? ?? (???? API)
+            client-id: ${HYUNDAI_CLIENT_ID:}
+            client-secret: ${HYUNDAI_CLIENT_SECRET:}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/hyundai"
+            scope: [ "vehicle:read", "vehicle:status" ]
+        provider:
+          hyundai:
+            authorization-uri: https://accounts.hyundai.com/oauth2/authorize
+            token-uri:          https://accounts.hyundai.com/oauth2/token
+            user-info-uri:      https://api.hyundai.com/v1/me
+            user-name-attribute: sub
+
+server:  # ????? ??? never? on_param? ??? ? ??.
+  port: 8080
+  shutdown: graceful
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "health", "info", "metrics" ]
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    com.carKeeper: debug
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace   # ??? ?????? (????? ??) ???? ??·??(???? ??) ??? info ?? warn?? ???.
+
+
+  # ./gradlew bootRun --args='--spring.profiles.active=local'
+# === ???: local ===
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/carkeeper?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+
+# === ???: dev ===
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://${DB_HOST:dev-mysql}:${DB_PORT:3306}/${DB_NAME:carkeeper}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.orm.jdbc.bind: info
+
+# === ???: prod ===
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate         # ??? ??? ???
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=true&requireSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+  servlet:
+    multipart:
+      max-file-size: 5MB         # ?? ?? ??
+      max-request-size: 10MB
+logging:
+  level:
+    org.hibernate.SQL: warn
+    org.hibernate.orm.jdbc.bind: warn
+
+# === ???? ??? ?? (?: ?? ?? ??/??? ??/AI ??) ===
+#app:
+#  storage:
+#    uploads-dir: ${UPLOADS_DIR:./uploads}
+#  rules:
+#    maintenance:
+#      notice-threshold-days: 7    # D-7 ??
+#  ai:
+#    enabled: true
+#    provider: anthropic           # LLM/RAG ??
+#    anthropic:
+#      api-key: ${ANTHROPIC_API_KEY:}
+#  ocr:
+#    enabled: true                 # ???/??? ??? OCR (?? ??)
