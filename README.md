@@ -39,3 +39,8 @@ Java : JDK 17 \n
 Spring Boot : 3.X\n
 DBMS : MySQL \n
 IDE : IntelliJ
+
+
+### ERD 구조
+<img width="2924" height="2142" alt="carkeeper" src="https://github.com/user-attachments/assets/084ec9bc-6a2e-44c6-9417-9b842b52233a" />
+
